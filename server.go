@@ -35,17 +35,16 @@ func NewServer(documentRoot string, maxUploadSize int64, token string) Server {
 
 func printUpload(filename string) {
     dstPath := "c:\\bin\\upload\\" + filename
-
-    logger.WithFields(logrus.Fields{
-        "print": dstPath,
-    }).Info("printing file!")
-
     cmd := exec.Command("PDFtoPrinter", dstPath)
     err := cmd.Start()
 
     if err != nil {
         logger.WithError(err).Error("failed to execute PDFtoPrinter")
     }
+
+    logger.WithFields(logrus.Fields{
+        "print": dstPath,
+    }).Info("printing file!")
 }
 
 func (s Server) handleGet(w http.ResponseWriter, r *http.Request) {
