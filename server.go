@@ -11,9 +11,11 @@ import (
     "path"
     "regexp"
     "strings"
-    "os/exec"
+//    "os/exec"
 
     "github.com/Sirupsen/logrus"
+    ps "github.com/gorillalabs/go-powershell"
+    "github.com/gorillalabs/go-powershell/backend"
 )
 
 // Server represents a simple-upload server.
@@ -32,7 +34,7 @@ func NewServer(documentRoot string, maxUploadSize int64, token string) Server {
         SecureToken:   token,
     }
 }
-
+/*
 func printUpload(filename string) {
     dstPath := "c:\\bin\\upload\\" + filename
     cmd := exec.Command("PDFtoPrinter", dstPath)
@@ -45,6 +47,27 @@ func printUpload(filename string) {
     logger.WithFields(logrus.Fields{
         "print": dstPath,
     }).Info("printing file!")
+}
+*/
+
+func printDoc(filename string) {
+    dstPath := "c:\\bin\\upload\\" + filename
+
+    back := &backend.Local{}
+    shell, err := ps.New(back)
+    if err != nil {
+        panic(err)
+    }
+    defer shell.Exit()
+
+    // ... and interact with it
+    stdout, stderr, err := shell.Execute("Start-Process -FilePath "+dstPath+" -verb print")
+    if err != nil {
+        panic(err)
+    }
+
+    fmt.Println(stdout)
+    fmt.Println(stderr)
 }
 
 func (s Server) handleGet(w http.ResponseWriter, r *http.Request) {
@@ -129,7 +152,8 @@ func (s Server) handlePost(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusOK)
     writeSuccess(w, uploadedURL)
 
-    printUpload(filename);
+//    printUpload(filename);
+    printDoc(filename);
 }
 
 func (s Server) handlePut(w http.ResponseWriter, r *http.Request) {
